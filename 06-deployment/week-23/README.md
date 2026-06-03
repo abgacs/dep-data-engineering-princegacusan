@@ -1,6 +1,6 @@
 # Week 23 — Documentation, Repo Polish & Reproducibility
 
-**Phase 6 — Packaging & Deployment &nbsp;|&nbsp; Milestone 5 / 6**
+**Phase 6 — Packaging & Deployment &nbsp;|&nbsp; Milestone 5**
 
 ---
 
