@@ -19,6 +19,8 @@ All notable curriculum-documentation changes in this repo should be recorded her
 - Updated all phase READMEs with revised milestone timing, pass criteria, and gate enforcement.
 - Updated `docs/MILESTONE_CHECKLIST.md` with hard gate notes on M0 and M1, revised milestone timing, and separate Path A / Path B criteria for M5.
 - Updated tech stack diagram (SVG) with corrected week ranges, SQL added to Phase 3, scikit-learn added to Phase 5.
+- Updated [README.md](README.md) to reflect Program Overview: added Program Design section (duration, weekly rule, design principles, resource rule, tool stack), split Phase 5 into separate Path A and Path B rows in the curriculum table, added analysis notebook to primary outputs, and fixed Starter Kit link to point to [cohorts/starter-kit/](cohorts/starter-kit/).
+- Fixed [06-deployment/week-23/README.md](06-deployment/week-23/README.md) milestone label from `Milestone 5 / 6` to `Milestone 5` — week 24 is the sole M6 deliverable.
 
 ## [0.0.3] - Static Site Preliminary
 

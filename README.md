@@ -11,8 +11,21 @@
 By the end of the program, every participant will have:
 
 - A **public GitHub repo** with a clean, documented data project
-- A **live deployed dashboard** (GitHub Pages)
 - An **end-to-end data pipeline** (ingest → clean → analyze → deploy)
+- An **analysis notebook** with charts, statistics, and written insights
+- A **live deployed dashboard** (GitHub Pages)
+
+---
+
+## Program Design
+
+| | |
+|-|-|
+| **Duration** | 24 weeks (~5 hours/week, ~120 hours total) |
+| **Weekly Rule** | 1 primary resource + 1 optional max; every week produces a project artifact |
+| **Design Principles** | Project-first · milestone-driven · public accountability · low-overwhelm resource curation |
+| **Resource Rule** | Prefer official docs, interactive tools, or one proven course. Avoid multiple full courses in the same week. |
+| **Tool Stack** | Free tools only: GitHub, Python, SQL, HTML. Optional tools (Tableau, etc.) are learner-driven. |
 
 ---
 
@@ -47,7 +60,8 @@ This is the **program hub** — it contains the curriculum, weekly resources, an
 | [02 — Data Collection](02-data-collection/) | 5–6 | API fundamentals, alternate ingestion paths (scraping / manual) | Ingestion script + raw data in `/data/raw` |
 | [03 — Data Processing](03-data-processing/) | 7–12 | Storage/data modeling, SQL, Pandas cleaning, data quality, pipeline structuring | Clean, schema-defined dataset + reproducible pipeline |
 | [04 — Analysis & Insights](04-analysis-and-insights/) | 13–16 | Descriptive stats, EDA, visualization, insight writing | Insights notebook with 3–5 charts |
-| [05 — Predictive / Alt Track](05-project-packaging/) | 17–20 | **Path A:** Regression, classification, ML pipeline &nbsp;/&nbsp; **Path B:** Advanced EDA, KPI framework, stakeholder narrative | Predictive layer (A) or advanced analysis + brief (B) |
+| [05A — Predictive Layer](05-project-packaging/) *(Path A — conditional)* | 17–20 | Regression, classification, feature engineering, ML pipeline integration | Predictive model + evaluation metrics |
+| [05B — Non-Predictive Alt Track](05-project-packaging/) *(Path B — conditional)* | 17–20 | Advanced segmentation, KPI framework, stakeholder narrative, repo integration | Advanced analysis + stakeholder brief |
 | [06 — Deployment](06-deployment/) | 21–24 | Dashboard design + build, GitHub Pages deploy, documentation polish, presentation | Live project URL + portfolio-ready repo |
 
 ---
@@ -75,7 +89,7 @@ Full checklist: [docs/MILESTONE_CHECKLIST.md](docs/MILESTONE_CHECKLIST.md)
 ## Getting Started (Participants)
 
 1. **Join the community** — [Discord link here]
-2. **Set up your project repo** — use the [DEP Starter Kit](https://github.com/dai-dep/dep-starter-kit) template
+2. **Set up your project repo** — copy the [DEP Starter Kit](cohorts/starter-kit/) scaffold into your own GitHub repo
 3. **Start Phase 1** — go to [01-foundations/](01-foundations/) and begin Week 1
 
 ---
