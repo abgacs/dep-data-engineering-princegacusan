@@ -11,6 +11,9 @@ The main metric I want to track is the Makati Air Quality Index (MAQI). A dynami
 
 ## Likely Data Source
 I will explore The WAQI (World Air Quality Index) API and the OpenWeatherMap API.
+WAQI: https://waqi.info/#/c/4.333/7.871/2.3z
+OpenWeatherMap: https://openweathermap.org/weathermap
+
 
 ## Possible Final Dashboard
 The dashboard should help the audience quickly see a centralized dashboard that shows Air Quality Heatmaps for Makati, helping users identify the safest times to commute or walk within the city, while flagging High-Pollution windows for the Makati LGU.
