@@ -46,57 +46,12 @@ The dashboard should help the audience quickly see a centralized dashboard that 
 * Why it could still work: It provides the critical meteorological context (e.g., wind speed and humidity) that influences air quality. Even if air quality sensor data has gaps, weather trends help explain general pollutant dispersion patterns.
 * Known limitations: Data is derived from regional weather models and interpolation rather than street-level sensors; free tier has daily request limits; does not contain air quality data, only meteorological context.
 
+### Data Ingestion Strategy
 
+To ensure a continuous, automated flow of data without manual intervention, the ingestion architecture is designed as follows:
 
-**DATA INGESTION STRATEGY**
-
-
-
-To ensure a continuous, automated flow of data without manual intervention, 
-
-the ingestion architecture is designed as follows:
-
-
-
-\* Ingestion Architecture: 
-
-&#x20; Scheduled Batch Processing.
-
-
-
-\* Frequency: 
-
-&#x20; Hourly ingestion cadence. Since the WAQI station broadcasts hourly 
-
-&#x20; sensor updates and weather attributes shift incrementally, polling both 
-
-&#x20; endpoints once every 60 minutes optimizes API limits while keeping 
-
-&#x20; the engine current.
-
-
-
-\* Ingestion Mechanism: 
-
-&#x20; A dedicated Python extraction script ('scripts/extract.py') leverages 
-
-&#x20; the standard 'requests' library to handle HTTP GET protocols. It securely 
-
-&#x20; queries both endpoints using environment variables ('.env') for 
-
-&#x20; authorization tokens.
-
-
-
-\* Storage Target (Raw Layer): 
-
-&#x20; Every successful API hit writes an immutable, timestamped file into 
-
-&#x20; the 'data/raw/' directory (e.g., 'data/raw/waqi\_makati\_20260718\_1800.json'). 
-
-&#x20; Retaining the exact unedited structural response guarantees that we 
-
-&#x20; can rerun structural data transformations if our processing rules alter 
-
-&#x20; down the road.
+*   **Ingestion Architecture:** Scheduled Batch Processing.
+*   **Frequency:** Hourly ingestion cadence. Since the WAQI station broadcasts hourly sensor updates and weather attributes shift incrementally, polling both endpoints once every 60 minutes optimizes API limits while keeping the engine current.
+*   **Ingestion Mechanism:** A dedicated Python extraction script (`scripts/extract.py`) leverages the standard `requests` library to handle HTTP GET protocols. It securely queries both endpoints using environment variables (`.env`) for authorization tokens.
+*   **Storage Target (Raw Layer):** Every successful API hit writes an immutable, timestamped file into the `data/raw/` directory (e.g., `data/raw/waqi_makati_20260718_1800.json`). Retaining the exact unedited structural response guarantees that we can rerun structural data transformations if our processing rules alter down the road.
 
