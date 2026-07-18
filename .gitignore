@@ -1,0 +1,17 @@
+# Credentials and Environment Variables (CRITICAL)
+.env
+
+# Python caching 
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local Data Storage
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
