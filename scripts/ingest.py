@@ -49,9 +49,11 @@ def fetch_waqi_data() -> dict:
     except requests.exceptions.Timeout:
         print("[ERROR] WAQI API request timed out after 30 seconds.")
     except requests.exceptions.HTTPError as err:
-        print(f"[ERROR] WAQI HTTP error occurred: {err}")
+        safe_err = str(err).replace(WAQI_API_KEY, "********")
+        print(f"[ERROR] WAQI HTTP error occurred: {safe_err}")
     except requests.exceptions.RequestException as err:
-        print(f"[ERROR] WAQI connection failed: {err}")
+        safe_err = str(err).replace(WAQI_API_KEY, "********")
+        print(f"[ERROR] WAQI connection failed: {safe_err}")
 
     return {}
 
@@ -80,9 +82,11 @@ def fetch_openweather_data() -> dict:
     except requests.exceptions.Timeout:
         print("[ERROR] OpenWeatherMap API request timed out after 30 seconds.")
     except requests.exceptions.HTTPError as err:
-        print(f"[ERROR] OpenWeatherMap HTTP error occurred: {err}")
+        safe_err = str(err).replace(OPENWEATHER_API_KEY, "********")
+        print(f"[ERROR] OpenWeatherMap HTTP error occurred: {safe_err}")
     except requests.exceptions.RequestException as err:
-        print(f"[ERROR] OpenWeatherMap connection failed: {err}")
+        safe_err = str(err).replace(OPENWEATHER_API_KEY, "********")
+        print(f"[ERROR] OpenWeatherMap connection failed: {safe_err}")
 
     return {}
 
