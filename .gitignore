@@ -15,3 +15,6 @@ data/processed/*
 # System files
 .DS_Store
 Thumbs.db
+
+# Ignore log files
+*.log
