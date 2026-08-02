@@ -6,14 +6,15 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# Local Data Storage
-data/
+# Ignore everything inside data/ by default
+data/*
 
-# Allow and track everything inside data/raw/ and data/processed/
+# EXCEPT the raw and processed subfolders
 !data/raw/
-!data/raw/**
 !data/processed/
-!data/processed/**
+
+# Keep gitkeep files if present
+!data/**/.gitkeep
 
 # System files
 .DS_Store

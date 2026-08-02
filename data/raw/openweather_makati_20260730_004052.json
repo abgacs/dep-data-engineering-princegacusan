@@ -1,0 +1,46 @@
+{
+  "coord": {
+    "lon": 121.0244,
+    "lat": 14.5547
+  },
+  "weather": [
+    {
+      "id": 804,
+      "main": "Clouds",
+      "description": "overcast clouds",
+      "icon": "04n"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 24.84,
+    "feels_like": 25.73,
+    "temp_min": 24.36,
+    "temp_max": 24.97,
+    "pressure": 1010,
+    "humidity": 90,
+    "sea_level": 1010,
+    "grnd_level": 1009
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 0.45,
+    "deg": 346,
+    "gust": 0.45
+  },
+  "clouds": {
+    "all": 92
+  },
+  "dt": 1785342817,
+  "sys": {
+    "type": 2,
+    "id": 2005706,
+    "country": "PH",
+    "sunrise": 1785361113,
+    "sunset": 1785407157
+  },
+  "timezone": 28800,
+  "id": 1703417,
+  "name": "Makati City",
+  "cod": 200
+}
