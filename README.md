@@ -55,3 +55,25 @@ To ensure a continuous, automated flow of data without manual intervention, the 
 *   **Ingestion Mechanism:** A dedicated Python extraction script (`scripts/extract.py`) leverages the standard `requests` library to handle HTTP GET protocols. It securely queries both endpoints using environment variables (`.env`) for authorization tokens.
 *   **Storage Target (Raw Layer):** Every successful API hit writes an immutable, timestamped file into the `data/raw/` directory (e.g., `data/raw/waqi_makati_20260718_1800.json`). Retaining the exact unedited structural response guarantees that we can rerun structural data transformations if our processing rules alter down the road.
 
+## Milestone 2 — Data Collection & Ingestion 
+
+### Ingestion Pipeline Overview
+* **Ingestion Method:** Path A — API (Hardened with Retries)
+* **Script Location:** `scripts/ingest.py`
+* **Storage Location:** `data/raw/` (JSON files with immutable UTC timestamps)
+
+### Data Sources & Metadata
+1. **WAQI (World Air Quality Index) API**
+   * **Source Endpoint:** `https://api.waqi.info/feed/makati/`
+   * **Parameters:** `token` (authenticated via `.env`)
+   * **Target:** Real-time AQI and individual pollutant readings (PM2.5, PM10, CO, NO2) for Makati.
+
+2. **OpenWeatherMap API**
+   * **Source Endpoint:** `https://api.openweathermap.org/data/2.5/weather`
+   * **Parameters:** `lat=14.5547`, `lon=121.0244`, `units=metric`, `appid` (authenticated via `.env`)
+   * **Target:** Meteorological contextual variables (Temperature, Humidity, Wind Speed, Pressure).
+
+### Fault Tolerance & Security
+* **Retry Strategy:** Built using `urllib3.util.Retry` attached to HTTP sessions (3 retries with exponential backoff on HTTP status codes 429, 500, 502, 503, 504).
+* **Credential Protection:** API keys stored exclusively in local `.env` (ignored by `.gitignore`). Exception output automatically replaces sensitive API key strings with `********` to prevent console or log leaks.
+* **Reproducibility:** Every saved raw JSON file is wrapped with an `_ingestion_metadata` header recording the source URL, fetch timestamp (UTC), and ingestion path method.

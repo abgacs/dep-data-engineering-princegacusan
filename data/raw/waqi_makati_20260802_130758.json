@@ -1,0 +1,53 @@
+{
+  "_ingestion_metadata": {
+    "source_name": "waqi",
+    "source_url": "https://api.waqi.info/feed/makati/",
+    "fetched_at_utc": "2026-08-02T13:07:58.507617+00:00",
+    "ingestion_path": "Path A — API (Hardened with Retries)"
+  },
+  "raw_response": {
+    "status": "ok",
+    "data": {
+      "aqi": "-",
+      "idx": 8259,
+      "attributions": [
+        {
+          "url": "http://air.emb.gov.ph/",
+          "name": "Department of Environmental Management Bureau (EMB) - Air Quality Management Section"
+        },
+        {
+          "url": "https://waqi.info/",
+          "name": "World Air Quality Index Project"
+        }
+      ],
+      "city": {
+        "geo": [
+          14.5995124,
+          120.9842195
+        ],
+        "name": "Manila Center, Philippines",
+        "url": "https://aqicn.org/city/philippines/manila/center"
+      },
+      "dominentpol": "",
+      "iaqi": {
+        "h": {
+          "v": 48
+        },
+        "p": {
+          "v": 1014
+        },
+        "t": {
+          "v": 31.15
+        }
+      },
+      "time": {
+        "s": "",
+        "tz": "+08:00",
+        "v": 0
+      },
+      "debug": {
+        "sync": "2019-02-16T16:12:38+09:00"
+      }
+    }
+  }
+}
