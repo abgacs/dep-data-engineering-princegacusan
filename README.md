@@ -90,7 +90,7 @@ For full details on field definitions, units, nested schema structures, and data
    ```bash
    pip install -r requirements.txt
 
-2. **Set API keys in a '.env' file at the repo root:**
+2. **Set API keys in a `.env` file at the repo root:**
    ```Code snippet
    WAQI_API_KEY=your_waqi_key_here
    OPENWEATHER_API_KEY=your_openweather_key_here
@@ -99,4 +99,4 @@ For full details on field definitions, units, nested schema structures, and data
    ```bash
    python scripts/ingest.py
 
-This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an '_ingestion_metadata' envelope to 'data/raw/'.
+This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
