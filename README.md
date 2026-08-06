@@ -78,13 +78,13 @@ To ensure a continuous, automated flow of data without manual intervention, the 
 * **Credential Protection:** API keys stored exclusively in local `.env` (ignored by `.gitignore`). Exception output automatically replaces sensitive API key strings with `********` to prevent console or log leaks.
 * **Reproducibility:** Every saved raw JSON file is wrapped with an `_ingestion_metadata` header recording the source URL, fetch timestamp (UTC), and ingestion path method.
 
-## 📖 Data Dictionary
+## Data Dictionary
 For full details on field definitions, units, nested schema structures, and data types for all raw JSON extractions, refer to the dedicated documentation:
-👉 [**Data Dictionary (`data/data_dictionary.md`)**](data/data_dictionary.md)
+[**Data Dictionary (`data/data_dictionary.md`)**](data/data_dictionary.md)
 
 ---
 
-## 🚀 How to Run
+## How to Run
 
 1. **Install dependencies:**
    ```bash
