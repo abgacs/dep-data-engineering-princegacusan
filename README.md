@@ -77,3 +77,26 @@ To ensure a continuous, automated flow of data without manual intervention, the 
 * **Retry Strategy:** Built using `urllib3.util.Retry` attached to HTTP sessions (3 retries with exponential backoff on HTTP status codes 429, 500, 502, 503, 504).
 * **Credential Protection:** API keys stored exclusively in local `.env` (ignored by `.gitignore`). Exception output automatically replaces sensitive API key strings with `********` to prevent console or log leaks.
 * **Reproducibility:** Every saved raw JSON file is wrapped with an `_ingestion_metadata` header recording the source URL, fetch timestamp (UTC), and ingestion path method.
+
+## 📖 Data Dictionary
+For full details on field definitions, units, nested schema structures, and data types for all raw JSON extractions, refer to the dedicated documentation:
+👉 [**Data Dictionary (`data/data_dictionary.md`)**](data/data_dictionary.md)
+
+---
+
+## 🚀 How to Run
+
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+
+2. **Set API keys in a .env file at the repo root:**
+   ```Code snippet
+   WAQI_API_KEY=your_waqi_key_here
+   OPENWEATHER_API_KEY=your_openweather_key_here
+   
+3. **Run the ingestion script:**
+   ```bash
+   python scripts/ingest.py
+
+This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an _ingestion_metadata envelope to data/raw/.
