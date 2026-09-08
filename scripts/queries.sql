@@ -10,6 +10,7 @@
 -- ---------------------------------------------------------------------
 SELECT 
     CASE 
+        WHEN aqi IS NULL THEN '0. Unknown / Sensor Inactive'
         WHEN aqi <= 50 THEN '1. Good (0-50)'
         WHEN aqi <= 100 THEN '2. Moderate (51-100)'
         WHEN aqi <= 150 THEN '3. Unhealthy for Sensitive Groups (101-150)'
@@ -20,9 +21,8 @@ SELECT
     ROUND(AVG(pm25), 2) AS avg_pm25_ugm3,
     ROUND(AVG(temperature_celsius), 1) AS avg_temp_celsius
 FROM makati_air_weather_hourly
-WHERE aqi IS NOT NULL
-GROUP BY 1
-ORDER BY 1;
+GROUP BY aqi_category
+ORDER BY aqi_category;
 
 
 -- ---------------------------------------------------------------------
