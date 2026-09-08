@@ -102,7 +102,7 @@ For full details on field definitions, units, nested schema structures, and data
 This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
 
 
-## Analytical Business Questions & SQL Queries (Week 8)
+## Analytical Business Questions & SQL Queries
 
 The project addresses three core analytical business questions using ANSI SQL queries defined in `scripts/queries.sql`:
 
@@ -120,8 +120,8 @@ You can execute all business queries locally using the automated SQLite runner s
 Ensure Python 3.8+ and Pandas are installed:
 1. **Install dependencies:**
    ```bash
-   pip install -r requirements.txt
+   pip install pandas
 
 2. **Run the ingestion script:**
    ```bash
-   python scripts/ingest.py
+   python scripts/run_queries.py
