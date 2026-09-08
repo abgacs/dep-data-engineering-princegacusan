@@ -3,6 +3,7 @@ import glob
 import json
 import pandas as pd
 import numpy as np
+import re
 
 RAW_DIR = os.path.join("data", "raw")
 PROCESSED_DIR = os.path.join("data", "processed")
@@ -45,11 +46,12 @@ def discover_and_load_json_files():
 
 
 def parse_waqi_data(records_with_paths):
-    """Extract and standardize WAQI fields across varying raw payload structures."""
+    """Extract and standardize WAQI fields handling missing/empty values and hyphenated AQI."""
     parsed = []
     
     for item in records_with_paths:
         filepath, rec = item if isinstance(item, tuple) else ("unknown", item)
+        fname = os.path.basename(filepath)
         
         if not isinstance(rec, dict):
             continue
@@ -59,13 +61,18 @@ def parse_waqi_data(records_with_paths):
             data = data[0]
             
         if not isinstance(data, dict):
-            print(f"⚠️ WAQI Warning ({os.path.basename(filepath)}): 'data' field is not a dictionary. Raw payload: {rec}")
             continue
 
-        # Extract AQI
-        aqi_val = data.get("aqi")
+        # 1. Clean AQI (convert "-" or missing values to None/NaN)
+        raw_aqi = data.get("aqi")
+        aqi_val = None
+        if raw_aqi is not None and str(raw_aqi).strip() not in ["-", "", "None"]:
+            try:
+                aqi_val = float(raw_aqi)
+            except ValueError:
+                aqi_val = None
 
-        # Extract IAQI Pollutants
+        # 2. Extract Pollutants from iaqi
         iaqi = data.get("iaqi", {})
         if not isinstance(iaqi, dict):
             iaqi = {}
@@ -73,32 +80,48 @@ def parse_waqi_data(records_with_paths):
         def extract_val(metric_key):
             val = iaqi.get(metric_key)
             if isinstance(val, dict):
-                return val.get("v")
+                v = val.get("v")
+                try:
+                    return float(v) if v is not None else None
+                except (ValueError, TypeError):
+                    return None
             elif isinstance(val, (int, float)):
-                return val
+                return float(val)
             return None
 
-        # Extract Timestamp
+        # 3. Extract Timestamp (Payload -> Metadata -> Filename regex)
         time_info = data.get("time", {})
         utc_ts = None
         
         if isinstance(time_info, dict):
-            utc_ts = time_info.get("iso") or time_info.get("s") or time_info.get("v")
-        elif isinstance(time_info, str):
+            utc_ts = time_info.get("iso") or time_info.get("s") or time_info.get("utc")
+            if utc_ts == "": # Handle empty string s: ""
+                utc_ts = None
+        elif isinstance(time_info, str) and time_info.strip() != "":
             utc_ts = time_info
 
-        # Fallback to metadata timestamp if WAQI time object is missing
+        # Fallback A: Metadata
         if not utc_ts:
             utc_ts = rec.get("metadata", {}).get("ingested_at_utc") or rec.get("ingested_at_utc")
 
+        # Fallback B: Extract from filename (waqi_makati_20260730_004052.json)
         if not utc_ts:
-            print(f"⚠️ WAQI Warning ({os.path.basename(filepath)}): Could not locate timestamp in payload.")
+            match = re.search(r"(\d{8}_\d{6})", fname)
+            if match:
+                raw_dt_str = match.group(1)
+                try:
+                    utc_ts = pd.to_datetime(raw_dt_str, format="%Y%m%d_%H%M%S", utc=True)
+                except Exception:
+                    utc_ts = None
+
+        if not utc_ts:
+            print(f"⚠️ WAQI Warning ({fname}): Could not establish a valid timestamp.")
             continue
 
         try:
             ts = pd.to_datetime(utc_ts, utc=True).floor("h")
         except Exception as e:
-            print(f"⚠️ WAQI Warning ({os.path.basename(filepath)}): Failed to parse timestamp '{utc_ts}': {e}")
+            print(f"⚠️ WAQI Warning ({fname}): Failed to parse timestamp '{utc_ts}': {e}")
             continue
 
         parsed.append({
