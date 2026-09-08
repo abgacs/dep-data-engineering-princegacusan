@@ -44,31 +44,68 @@ def discover_and_load_json_files():
     return waqi_records, owm_records
 
 def parse_waqi_data(records):
-    """Extract and standardize WAQI fields."""
+    """Extract and standardize WAQI fields across varying raw payload structures."""
     parsed = []
+    
     for rec in records:
-        data = rec.get("data", rec) if isinstance(rec, dict) else {}
-        if not data or not isinstance(data, dict):
+        if not isinstance(rec, dict):
             continue
             
+        # Extract nested payload if present
+        data = rec.get("data", rec)
+        if isinstance(data, list) and len(data) > 0:
+            data = data[0]
+            
+        if not isinstance(data, dict):
+            continue
+
+        # 1. Extract AQI
+        aqi_val = data.get("aqi")
+
+        # 2. Extract Pollutants (iaqi)
         iaqi = data.get("iaqi", {})
+        if not isinstance(iaqi, dict):
+            iaqi = {}
+
+        def extract_val(metric_key):
+            val = iaqi.get(metric_key)
+            if isinstance(val, dict):
+                return val.get("v")
+            elif isinstance(val, (int, float)):
+                return val
+            return None
+
+        # 3. Extract Timestamp (supports iso, s, v, or metadata timestamp)
         time_info = data.get("time", {})
+        utc_ts = None
         
-        utc_ts = time_info.get("iso") or time_info.get("s") if isinstance(time_info, dict) else None
+        if isinstance(time_info, dict):
+            utc_ts = time_info.get("iso") or time_info.get("s") or time_info.get("v")
+        elif isinstance(time_info, str):
+            utc_ts = time_info
+
+        # Fallback to ingestion timestamp or raw metadata timestamp if WAQI time object is missing
+        if not utc_ts:
+            utc_ts = rec.get("metadata", {}).get("ingested_at_utc") or rec.get("ingested_at_utc")
+
         if not utc_ts:
             continue
 
-        ts = pd.to_datetime(utc_ts, utc=True).floor("h")
+        try:
+            ts = pd.to_datetime(utc_ts, utc=True).floor("h")
+        except Exception:
+            continue
 
         parsed.append({
             "observation_timestamp_utc": ts,
-            "aqi": data.get("aqi"),
-            "pm25": iaqi.get("pm25", {}).get("v") if isinstance(iaqi.get("pm25"), dict) else None,
-            "pm10": iaqi.get("pm10", {}).get("v") if isinstance(iaqi.get("pm10"), dict) else None,
-            "no2": iaqi.get("no2", {}).get("v") if isinstance(iaqi.get("no2"), dict) else None,
-            "co": iaqi.get("co", {}).get("v") if isinstance(iaqi.get("co"), dict) else None,
+            "aqi": aqi_val,
+            "pm25": extract_val("pm25"),
+            "pm10": extract_val("pm10"),
+            "no2": extract_val("no2"),
+            "co": extract_val("co"),
             "ingested_at_utc": rec.get("metadata", {}).get("ingested_at_utc") if isinstance(rec, dict) else None
         })
+        
     return pd.DataFrame(parsed)
 
 def parse_openweathermap_data(records):
