@@ -1,5 +1,5 @@
 -- =====================================================================
--- MakatiAir Insight — Analytical Business Queries
+-- MakatiAir Insight—Analytical Business Queries
 -- Target Schema: makati_air_weather_hourly
 -- =====================================================================
 
