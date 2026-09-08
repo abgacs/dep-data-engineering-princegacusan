@@ -118,7 +118,10 @@ You can execute all business queries locally using the automated SQLite runner s
 
 ### Prerequisites
 Ensure Python 3.8+ and Pandas are installed:
-```bash
-pip install pandas
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
 
-python scripts/run_queries.py
+2. **Run the ingestion script:**
+   ```bash
+   python scripts/ingest.py
