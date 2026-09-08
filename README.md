@@ -100,3 +100,25 @@ For full details on field definitions, units, nested schema structures, and data
    python scripts/ingest.py
 
 This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
+
+
+## Analytical Business Questions & SQL Queries (Week 8)
+
+The project addresses three core analytical business questions using ANSI SQL queries defined in `scripts/queries.sql`:
+
+1. **Question 1 (Air Quality Severity Distribution):** *How frequently does Makati experience each air quality health tier, and what is the average $PM_{2.5}$ level per tier?*
+2. **Question 2 (Environmental Correlation):** *How do different weather conditions and relative humidity levels impact $PM_{2.5}$ concentrations and overall AQI in Makati?*
+3. **Question 3 (Diurnal Pollution Trends):** *Which hours of the day experience the highest average air pollution ($PM_{2.5}$ and $PM_{10}$) in Makati?*
+
+---
+
+## How to Run the SQL Queries
+
+You can execute all business queries locally using the automated SQLite runner script.
+
+### Prerequisites
+Ensure Python 3.8+ and Pandas are installed:
+```bash
+pip install pandas
+
+python scripts/run_queries.py
