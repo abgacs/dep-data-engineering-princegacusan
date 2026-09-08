@@ -89,19 +89,6 @@ def main():
     waqi_records = load_json_files("waqi")
     owm_records = load_json_files("openweathermap")
 
-    if not waqi_records and not owm_records:
-        print("⚠️ No raw JSON payloads found in data/raw/. Generating structural empty schema...")
-        cols = [
-            "observation_id", "location_name", "latitude", "longitude",
-            "observation_timestamp_utc", "aqi", "pm25", "pm10", "no2", "co",
-            "temperature_celsius", "feels_like_celsius", "humidity_pct",
-            "pressure_hpa", "weather_condition", "wind_speed_mps", "ingested_at_utc"
-        ]
-        df_empty = pd.DataFrame(columns=cols)
-        df_empty.to_csv(OUTPUT_FILE, index=False)
-        print(f"✅ Empty structural CSV saved at {OUTPUT_FILE}")
-        return
-
     df_waqi = parse_waqi_data(waqi_records) if waqi_records else pd.DataFrame()
     df_owm = parse_openweathermap_data(owm_records) if owm_records else pd.DataFrame()
 
@@ -119,6 +106,22 @@ def main():
     else:
         print("No OpenWeatherMap records loaded.")
 
+    # Schema definition
+    cols_order = [
+        "observation_id", "location_name", "latitude", "longitude",
+        "observation_timestamp_utc", "aqi", "pm25", "pm10", "no2", "co",
+        "temperature_celsius", "feels_like_celsius", "humidity_pct",
+        "pressure_hpa", "weather_condition", "wind_speed_mps", "ingested_at_utc"
+    ]
+
+    # Handle case where both feeds are empty
+    if df_waqi.empty and df_owm.empty:
+        print("\n⚠️ No raw JSON payloads found in data/raw/. Creating schema-compliant CSV file...")
+        df_empty = pd.DataFrame(columns=cols_order)
+        df_empty.to_csv(OUTPUT_FILE, index=False)
+        print(f"✅ Structural file saved at {OUTPUT_FILE}")
+        return
+
     # 2. Week 10: Joins & Merging
     print("\n🔄 Merging Air Quality and Meteorological feeds on observation_timestamp_utc...")
     if not df_waqi.empty and not df_owm.empty:
@@ -128,12 +131,11 @@ def main():
         for c in ["temperature_celsius", "feels_like_celsius", "humidity_pct", "pressure_hpa", "wind_speed_mps"]:
             df_merged[c] = np.nan
         df_merged["weather_condition"] = None
-        df_merged["owm_ingested_at_utc"] = None
     else:
         df_merged = df_owm
         for c in ["aqi", "pm25", "pm10", "no2", "co"]:
             df_merged[c] = np.nan
-        df_merged["ingested_at_utc"] = df_merged["owm_ingested_at_utc"]
+        df_merged["ingested_at_utc"] = df_merged.get("owm_ingested_at_utc", None)
 
     # 3. Week 10: Cleaning, Deduplication, & Feature Engineering
     df_merged["location_name"] = "Makati"
@@ -148,16 +150,9 @@ def main():
 
     # Ingestion fallback
     if "ingested_at_utc" not in df_merged.columns or df_merged["ingested_at_utc"].isnull().all():
-        df_merged["ingested_at_utc"] = df_merged.get("owm_ingested_at_utc", pd.Timestamp.now(tz="UTC").isoformat())
+        df_merged["ingested_at_utc"] = pd.Timestamp.now(tz="UTC").isoformat()
 
-    # Align to Schema Order
-    cols_order = [
-        "observation_id", "location_name", "latitude", "longitude",
-        "observation_timestamp_utc", "aqi", "pm25", "pm10", "no2", "co",
-        "temperature_celsius", "feels_like_celsius", "humidity_pct",
-        "pressure_hpa", "weather_condition", "wind_speed_mps", "ingested_at_utc"
-    ]
-
+    # Align columns
     for col in cols_order:
         if col not in df_merged.columns:
             df_merged[col] = np.nan
