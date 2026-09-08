@@ -10,7 +10,6 @@ OUTPUT_FILE = os.path.join("data", "processed", "makati_air_weather_hourly.csv")
 
 def discover_and_load_json_files():
     """Recursively discover and classify all JSON payloads in data/raw/."""
-    # Find all json files even if nested in subfolders
     search_pattern = os.path.join(RAW_DIR, "**", "*.json")
     files = glob.glob(search_pattern, recursive=True)
     
@@ -26,43 +25,47 @@ def discover_and_load_json_files():
                 
             fname = os.path.basename(filepath).lower()
             
-            # Identify source by payload signature or filename
-            if "waqi" in fname or (isinstance(payload, dict) and "iaqi" in str(payload)):
-                waqi_records.append(payload)
-            elif "weather" in fname or "openweather" in fname or (isinstance(payload, dict) and ("main" in payload or "dt" in payload or "weather" in str(payload))):
-                owm_records.append(payload)
+            # Classification logic based on file name prefix or keys
+            if "waqi" in fname:
+                waqi_records.append((filepath, payload))
+            elif "openweather" in fname or "weather" in fname:
+                owm_records.append((filepath, payload))
             else:
-                # Fallback check
-                if "data" in payload and isinstance(payload["data"], dict) and "iaqi" in payload["data"]:
-                    waqi_records.append(payload)
+                # Content-based fallback
+                payload_str = str(payload).lower()
+                if "iaqi" in payload_str or "aqi" in payload_str:
+                    waqi_records.append((filepath, payload))
                 else:
-                    owm_records.append(payload)
+                    owm_records.append((filepath, payload))
                     
         except Exception as e:
             print(f"⚠️ Warning: Failed to parse {filepath}: {e}")
 
     return waqi_records, owm_records
 
-def parse_waqi_data(records):
+
+def parse_waqi_data(records_with_paths):
     """Extract and standardize WAQI fields across varying raw payload structures."""
     parsed = []
     
-    for rec in records:
+    for item in records_with_paths:
+        filepath, rec = item if isinstance(item, tuple) else ("unknown", item)
+        
         if not isinstance(rec, dict):
             continue
             
-        # Extract nested payload if present
         data = rec.get("data", rec)
         if isinstance(data, list) and len(data) > 0:
             data = data[0]
             
         if not isinstance(data, dict):
+            print(f"⚠️ WAQI Warning ({os.path.basename(filepath)}): 'data' field is not a dictionary. Raw payload: {rec}")
             continue
 
-        # 1. Extract AQI
+        # Extract AQI
         aqi_val = data.get("aqi")
 
-        # 2. Extract Pollutants (iaqi)
+        # Extract IAQI Pollutants
         iaqi = data.get("iaqi", {})
         if not isinstance(iaqi, dict):
             iaqi = {}
@@ -75,7 +78,7 @@ def parse_waqi_data(records):
                 return val
             return None
 
-        # 3. Extract Timestamp (supports iso, s, v, or metadata timestamp)
+        # Extract Timestamp
         time_info = data.get("time", {})
         utc_ts = None
         
@@ -84,16 +87,18 @@ def parse_waqi_data(records):
         elif isinstance(time_info, str):
             utc_ts = time_info
 
-        # Fallback to ingestion timestamp or raw metadata timestamp if WAQI time object is missing
+        # Fallback to metadata timestamp if WAQI time object is missing
         if not utc_ts:
             utc_ts = rec.get("metadata", {}).get("ingested_at_utc") or rec.get("ingested_at_utc")
 
         if not utc_ts:
+            print(f"⚠️ WAQI Warning ({os.path.basename(filepath)}): Could not locate timestamp in payload.")
             continue
 
         try:
             ts = pd.to_datetime(utc_ts, utc=True).floor("h")
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ WAQI Warning ({os.path.basename(filepath)}): Failed to parse timestamp '{utc_ts}': {e}")
             continue
 
         parsed.append({
@@ -171,7 +176,7 @@ def main():
     waqi_records, owm_records = discover_and_load_json_files()
 
     df_waqi = parse_waqi_data(waqi_records) if waqi_records else pd.DataFrame()
-    df_owm = parse_openweathermap_data(owm_records) if owm_records else pd.DataFrame()
+    df_owm = parse_openweathermap_data([r[1] for r in owm_records]) if owm_records else pd.DataFrame()
 
     print("\n--- Week 9 Profiling: WAQI Extract ---")
     if not df_waqi.empty:
