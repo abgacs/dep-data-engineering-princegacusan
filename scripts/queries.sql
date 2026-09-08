@@ -1,13 +1,12 @@
 -- =====================================================================
 -- MakatiAir Insight — Analytical Business Queries
--- Schema: makati_air_weather_hourly
+-- Target Schema: makati_air_weather_hourly
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
--- Question 1: Air Quality Severity Distribution
--- Business Need: Categorize air quality levels into standard health tiers 
--- to evaluate how often Makati experiences unhealthy conditions and monitor 
--- average PM2.5 levels per tier.
+-- Question 1: How frequently does Makati experience each air quality health tier, and what is the average PM2.5 level per tier?
+-- Categorize AQI values into standard health tiers to evaluate
+-- how frequently Makati experiences unhealthy conditions and track average PM2.5.
 -- ---------------------------------------------------------------------
 SELECT 
     CASE 
@@ -27,9 +26,9 @@ ORDER BY 1;
 
 
 -- ---------------------------------------------------------------------
--- Question 2: Environmental Correlation (Weather vs Air Quality)
--- Business Need: Determine how weather conditions (Clear, Rain, Clouds) 
--- and relative humidity levels impact particulate matter (PM2.5) concentrations.
+-- Question 2: How do different weather conditions and relative humidity levels impact PM2.5 concentrations and overall AQI in Makati?
+-- Measure how distinct weather conditions (e.g., Rain, Clear, Clouds)
+-- and relative humidity levels impact PM2.5 and overall AQI.
 -- ---------------------------------------------------------------------
 SELECT 
     weather_condition,
@@ -46,9 +45,9 @@ ORDER BY avg_pm25_ugm3 DESC;
 
 
 -- ---------------------------------------------------------------------
--- Question 3: Diurnal Pollution Trends (Hour of Day Analysis)
--- Business Need: Identify peak pollution exposure hours throughout the day 
--- to support public health advisories and urban traffic planning.
+-- Question 3: Which hours of the day experience the highest average air pollution (PM2.5 and PM10) in Makati?
+-- Identify peak pollution exposure hours during the day to support
+-- public health advisories and urban traffic planning.
 -- ---------------------------------------------------------------------
 SELECT 
     EXTRACT(HOUR FROM observation_timestamp_utc) AS hour_of_day_utc,
