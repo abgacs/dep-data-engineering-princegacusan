@@ -1,0 +1,53 @@
+{
+  "_ingestion_metadata": {
+    "source_name": "openweather",
+    "source_url": "https://api.openweathermap.org/data/2.5/weather",
+    "fetched_at_utc": "2026-09-11T16:41:52.655193+00:00",
+    "ingestion_path": "Path A — API (Hardened with Retries)"
+  },
+  "raw_response": {
+    "coord": {
+      "lon": 121.0244,
+      "lat": 14.5547
+    },
+    "weather": [
+      {
+        "id": 804,
+        "main": "Clouds",
+        "description": "overcast clouds",
+        "icon": "04n"
+      }
+    ],
+    "base": "stations",
+    "main": {
+      "temp": 27.67,
+      "feels_like": 31.84,
+      "temp_min": 26.09,
+      "temp_max": 27.91,
+      "pressure": 1012,
+      "humidity": 84,
+      "sea_level": 1012,
+      "grnd_level": 1011
+    },
+    "visibility": 10000,
+    "wind": {
+      "speed": 0.51,
+      "deg": 0
+    },
+    "clouds": {
+      "all": 100
+    },
+    "dt": 1789144914,
+    "sys": {
+      "type": 1,
+      "id": 8160,
+      "country": "PH",
+      "sunrise": 1789163075,
+      "sunset": 1789207229
+    },
+    "timezone": 28800,
+    "id": 1703417,
+    "name": "Makati City",
+    "cod": 200
+  }
+}
