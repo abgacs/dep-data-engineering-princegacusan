@@ -167,8 +167,8 @@ def parse_openweathermap_data(records_with_paths):
     return pd.DataFrame(parsed)
 
 def run_data_quality_checks(df, expected_cols):
-    """Week 11 Data Quality Suite."""
-    print("\n🔍 Running Week 11 Data Quality Checks...")
+    """Data Quality Suite."""
+    print("\n🔍 Running Data Quality Checks...")
     
     if df.empty:
         print("⚠️ Quality Warning: Dataset is empty (0 records). Skipping row-level checks.")
@@ -191,7 +191,7 @@ def run_data_quality_checks(df, expected_cols):
 
 def main():
     print("=" * 65)
-    print("🚀 STARTING WEEKS 9-12 PANDAS ETL & DATA QUALITY PIPELINE")
+    print("🚀 STARTING PANDAS ETL & DATA QUALITY PIPELINE")
     print("=" * 65)
     os.makedirs(PROCESSED_DIR, exist_ok=True)
 
@@ -200,14 +200,14 @@ def main():
     df_waqi = parse_waqi_data(waqi_records) if waqi_records else pd.DataFrame()
     df_owm = parse_openweathermap_data(owm_records) if owm_records else pd.DataFrame()
 
-    print("\n--- Week 9 Profiling: WAQI Extract ---")
+    print("\n--- Profiling: WAQI Extract ---")
     if not df_waqi.empty:
         print(f"Loaded {len(df_waqi)} WAQI records.")
         print(df_waqi.head(2))
     else:
         print("No valid WAQI observation records parsed.")
 
-    print("\n--- Week 9 Profiling: OpenWeather Extract ---")
+    print("\n--- Profiling: OpenWeather Extract ---")
     if not df_owm.empty:
         print(f"Loaded {len(df_owm)} OpenWeather records.")
         print(df_owm.head(2))
