@@ -41,16 +41,17 @@ def get_retry_session(retries: int = 3, backoff_factor: float = 1.0) -> requests
 
 
 def fetch_waqi_data(session: requests.Session) -> tuple[dict, str]:
-    """Fetches real-time air quality data for Makati from the WAQI API."""
+    """Fetches real-time air quality data for Makati using geo-coordinates from the WAQI API."""
     if not WAQI_API_KEY:
         print("[ERROR] Missing WAQI_API_KEY in environment variables.")
         return {}, ""
 
-    url = f"https://api.waqi.info/feed/{WAQI_STATION}/"
+    # Switch from station string to geo-coordinates endpoint
+    url = f"https://api.waqi.info/feed/geo:{MAKATI_LAT};{MAKATI_LON}/"
     params = {"token": WAQI_API_KEY}
     headers = {"Accept": "application/json"}
 
-    print(f"[INFO] Querying WAQI API for station: '{WAQI_STATION}'...")
+    print(f"[INFO] Querying WAQI API for coordinates ({MAKATI_LAT}, {MAKATI_LON})...")
     try:
         response = session.get(url, params=params, headers=headers, timeout=30)
         response.raise_for_status()
@@ -72,7 +73,6 @@ def fetch_waqi_data(session: requests.Session) -> tuple[dict, str]:
         print(f"[ERROR] WAQI connection failed: {safe_err}")
 
     return {}, url
-
 
 def fetch_openweather_data(session: requests.Session) -> tuple[dict, str]:
     """Fetches current weather parameters for Makati from OpenWeatherMap API."""

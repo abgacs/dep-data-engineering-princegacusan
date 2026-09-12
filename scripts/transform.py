@@ -1,16 +1,16 @@
 import os
 import glob
 import json
+import re
 import pandas as pd
 import numpy as np
-import re
 
 RAW_DIR = os.path.join("data", "raw")
 PROCESSED_DIR = os.path.join("data", "processed")
 OUTPUT_FILE = os.path.join("data", "processed", "makati_air_weather_hourly.csv")
 
 def discover_and_load_json_files():
-    """Recursively discover and classify all JSON payloads in data/raw/."""
+    """Recursively discover and return list of (filepath, payload) tuples."""
     search_pattern = os.path.join(RAW_DIR, "**", "*.json")
     files = glob.glob(search_pattern, recursive=True)
     
@@ -25,16 +25,15 @@ def discover_and_load_json_files():
                 payload = json.load(f)
                 
             fname = os.path.basename(filepath).lower()
+            inner_data = payload.get("raw_data", payload.get("raw_response", payload))
             
-            # Classification logic based on file name prefix or keys
-            if "waqi" in fname:
+            # Identify source by filename or payload signature
+            if "waqi" in fname or (isinstance(inner_data, dict) and "iaqi" in str(inner_data)):
                 waqi_records.append((filepath, payload))
-            elif "openweather" in fname or "weather" in fname:
+            elif "weather" in fname or "openweather" in fname or (isinstance(inner_data, dict) and ("main" in inner_data or "dt" in inner_data)):
                 owm_records.append((filepath, payload))
             else:
-                # Content-based fallback
-                payload_str = str(payload).lower()
-                if "iaqi" in payload_str or "aqi" in payload_str:
+                if isinstance(inner_data, dict) and "data" in inner_data and isinstance(inner_data["data"], dict) and "iaqi" in inner_data["data"]:
                     waqi_records.append((filepath, payload))
                 else:
                     owm_records.append((filepath, payload))
@@ -44,9 +43,8 @@ def discover_and_load_json_files():
 
     return waqi_records, owm_records
 
-
 def parse_waqi_data(records_with_paths):
-    """Extract and standardize WAQI fields handling missing/empty values and hyphenated AQI."""
+    """Extract and standardize WAQI fields handling envelope and filename timestamps."""
     parsed = []
     
     for item in records_with_paths:
@@ -56,14 +54,15 @@ def parse_waqi_data(records_with_paths):
         if not isinstance(rec, dict):
             continue
             
-        data = rec.get("data", rec)
+        # Unwrap envelope
+        raw_resp = rec.get("raw_response", rec)
+        data = raw_resp.get("data", raw_resp)
         if isinstance(data, list) and len(data) > 0:
             data = data[0]
             
         if not isinstance(data, dict):
             continue
 
-        # 1. Clean AQI (convert "-" or missing values to None/NaN)
         raw_aqi = data.get("aqi")
         aqi_val = None
         if raw_aqi is not None and str(raw_aqi).strip() not in ["-", "", "None"]:
@@ -72,7 +71,6 @@ def parse_waqi_data(records_with_paths):
             except ValueError:
                 aqi_val = None
 
-        # 2. Extract Pollutants from iaqi
         iaqi = data.get("iaqi", {})
         if not isinstance(iaqi, dict):
             iaqi = {}
@@ -89,22 +87,19 @@ def parse_waqi_data(records_with_paths):
                 return float(val)
             return None
 
-        # 3. Extract Timestamp (Payload -> Metadata -> Filename regex)
+        # Extract Timestamp
         time_info = data.get("time", {})
         utc_ts = None
-        
         if isinstance(time_info, dict):
             utc_ts = time_info.get("iso") or time_info.get("s") or time_info.get("utc")
-            if utc_ts == "": # Handle empty string s: ""
+            if utc_ts == "":
                 utc_ts = None
         elif isinstance(time_info, str) and time_info.strip() != "":
             utc_ts = time_info
 
-        # Fallback A: Metadata
         if not utc_ts:
-            utc_ts = rec.get("metadata", {}).get("ingested_at_utc") or rec.get("ingested_at_utc")
+            utc_ts = rec.get("_ingestion_metadata", {}).get("fetched_at_utc")
 
-        # Fallback B: Extract from filename (waqi_makati_20260730_004052.json)
         if not utc_ts:
             match = re.search(r"(\d{8}_\d{6})", fname)
             if match:
@@ -131,16 +126,21 @@ def parse_waqi_data(records_with_paths):
             "pm10": extract_val("pm10"),
             "no2": extract_val("no2"),
             "co": extract_val("co"),
-            "ingested_at_utc": rec.get("metadata", {}).get("ingested_at_utc") if isinstance(rec, dict) else None
+            "ingested_at_utc": rec.get("_ingestion_metadata", {}).get("fetched_at_utc")
         })
         
     return pd.DataFrame(parsed)
 
-def parse_openweathermap_data(records):
-    """Extract and standardize OpenWeatherMap fields."""
+def parse_openweathermap_data(records_with_paths):
+    """Extract and standardize OpenWeatherMap fields handling envelope."""
     parsed = []
-    for rec in records:
-        data = rec.get("data", rec) if isinstance(rec, dict) else {}
+    for item in records_with_paths:
+        filepath, rec = item if isinstance(item, tuple) else ("unknown", item)
+        if not isinstance(rec, dict):
+            continue
+            
+        raw_resp = rec.get("raw_response", rec)
+        data = raw_resp.get("data", raw_resp) if isinstance(raw_resp, dict) else {}
         if not isinstance(data, dict):
             continue
 
@@ -162,7 +162,7 @@ def parse_openweathermap_data(records):
             "pressure_hpa": main.get("pressure"),
             "weather_condition": weather_cond,
             "wind_speed_mps": wind.get("speed"),
-            "owm_ingested_at_utc": rec.get("metadata", {}).get("ingested_at_utc") if isinstance(rec, dict) else None
+            "owm_ingested_at_utc": rec.get("_ingestion_metadata", {}).get("fetched_at_utc")
         })
     return pd.DataFrame(parsed)
 
@@ -176,7 +176,7 @@ def run_data_quality_checks(df, expected_cols):
 
     missing_cols = [c for c in expected_cols if c not in df.columns]
     assert len(missing_cols) == 0, f"❌ Missing required columns: {missing_cols}"
-    print("  ✅ Schema Check Passed: All 17 expected columns present.")
+    print("  ✅ Schema Check Passed: All expected columns present.")
 
     null_pks = df["observation_id"].isnull().sum()
     assert null_pks == 0, f"❌ Found {null_pks} null primary keys."
@@ -195,11 +195,10 @@ def main():
     print("=" * 65)
     os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-    # 1. Inspect and Ingest
     waqi_records, owm_records = discover_and_load_json_files()
 
     df_waqi = parse_waqi_data(waqi_records) if waqi_records else pd.DataFrame()
-    df_owm = parse_openweathermap_data([r[1] for r in owm_records]) if owm_records else pd.DataFrame()
+    df_owm = parse_openweathermap_data(owm_records) if owm_records else pd.DataFrame()
 
     print("\n--- Week 9 Profiling: WAQI Extract ---")
     if not df_waqi.empty:
@@ -230,8 +229,6 @@ def main():
         print(f"✅ Structural dataset saved at {OUTPUT_FILE}")
         return
 
-    # 2. Joins & Transformations
-    print("\n🔄 Merging feeds on observation_timestamp_utc...")
     if not df_waqi.empty and not df_owm.empty:
         df_merged = pd.merge(df_waqi, df_owm, on="observation_timestamp_utc", how="outer")
     elif not df_waqi.empty:
@@ -261,7 +258,6 @@ def main():
 
     df_final = df_merged[cols_order].drop_duplicates(subset=["observation_id"]).sort_values("observation_timestamp_utc")
 
-    # 3. Quality & Save
     run_data_quality_checks(df_final, cols_order)
     df_final.to_csv(OUTPUT_FILE, index=False)
     print(f"✅ Final Processed Dataset ({len(df_final)} rows) saved to {OUTPUT_FILE}")
