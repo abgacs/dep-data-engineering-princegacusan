@@ -104,6 +104,7 @@ For full details on field definitions, units, nested schema structures, and data
    python scripts/transform.py
 
 -This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
+
 -Parses raw JSON files, performs schema alignment and Data Quality checks, and saves the merged hourly dataset to `data/processed/makati_air_weather_hourly.csv`.
 
 
