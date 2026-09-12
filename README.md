@@ -103,7 +103,8 @@ For full details on field definitions, units, nested schema structures, and data
    ```bash
    python scripts/transform.py
 
-This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
+-This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
+-Parses raw JSON files, performs schema alignment and Data Quality checks, and saves the merged hourly dataset to `data/processed/makati_air_weather_hourly.csv`.
 
 
 ## Analytical Business Questions & SQL Queries
@@ -126,6 +127,8 @@ Ensure Python 3.8+ and Pandas are installed:
    ```bash
    pip install pandas
 
-2. **Run the ingestion script:**
+2. **Run the SQL Analysis:**
    ```bash
    python scripts/run_queries.py
+
+This loads the processed CSV into an in-memory DuckDB database and executes analytical SQL queries to answer core business questions.
