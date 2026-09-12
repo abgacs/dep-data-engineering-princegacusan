@@ -99,6 +99,10 @@ For full details on field definitions, units, nested schema structures, and data
    ```bash
    python scripts/ingest.py
 
+4. **Run the transformation script:**
+   ```bash
+   python scripts/transform.py
+
 This pulls raw air quality and weather measurements for Makati City and saves the untouched JSON responses wrapped in an `_ingestion_metadata` envelope to `data/raw`.
 
 
