@@ -1,0 +1,225 @@
+{
+  "_ingestion_metadata": {
+    "source_name": "waqi",
+    "source_url": "https://api.waqi.info/feed/geo:14.5547;121.0244/",
+    "fetched_at_utc": "2026-09-12T04:50:51.184554+00:00",
+    "ingestion_path": "Path A — API (Hardened with Retries)"
+  },
+  "raw_response": {
+    "status": "ok",
+    "data": {
+      "aqi": 17,
+      "idx": 1645,
+      "attributions": [
+        {
+          "url": "http://www.epa.gov.tw/",
+          "name": "TAQM - Taiwan Environmental Protection Agency (行政院環保署－空氣品質監測網)",
+          "logo": "Taiwan-EPA.png"
+        },
+        {
+          "url": "https://waqi.info/",
+          "name": "World Air Quality Index Project"
+        }
+      ],
+      "city": {
+        "geo": [
+          21.958069,
+          120.788928
+        ],
+        "name": "Hengchun, Taiwan (恆春)",
+        "url": "https://aqicn.org/city/taiwan/hengchun",
+        "location": ""
+      },
+      "dominentpol": "o3",
+      "iaqi": {
+        "co": {
+          "v": 0.9
+        },
+        "dew": {
+          "v": 23.5
+        },
+        "h": {
+          "v": 72
+        },
+        "no2": {
+          "v": 0.2
+        },
+        "o3": {
+          "v": 17.1
+        },
+        "p": {
+          "v": 1012
+        },
+        "pm10": {
+          "v": 3
+        },
+        "pm25": {
+          "v": 13
+        },
+        "so2": {
+          "v": 0.9
+        },
+        "t": {
+          "v": 29.2
+        },
+        "uvi": {
+          "v": 8
+        },
+        "w": {
+          "v": 4.8
+        }
+      },
+      "time": {
+        "s": "2026-09-12 12:00:00",
+        "tz": "+08:00",
+        "v": 1789214400,
+        "iso": "2026-09-12T12:00:00+08:00"
+      },
+      "forecast": {
+        "daily": {
+          "pm10": [
+            {
+              "avg": 45,
+              "day": "2026-09-11",
+              "max": 50,
+              "min": 37
+            },
+            {
+              "avg": 23,
+              "day": "2026-09-12",
+              "max": 46,
+              "min": 19
+            },
+            {
+              "avg": 21,
+              "day": "2026-09-13",
+              "max": 27,
+              "min": 13
+            },
+            {
+              "avg": 25,
+              "day": "2026-09-14",
+              "max": 27,
+              "min": 19
+            },
+            {
+              "avg": 25,
+              "day": "2026-09-15",
+              "max": 32,
+              "min": 19
+            },
+            {
+              "avg": 27,
+              "day": "2026-09-16",
+              "max": 32,
+              "min": 22
+            },
+            {
+              "avg": 20,
+              "day": "2026-09-17",
+              "max": 27,
+              "min": 12
+            },
+            {
+              "avg": 19,
+              "day": "2026-09-18",
+              "max": 24,
+              "min": 18
+            }
+          ],
+          "pm25": [
+            {
+              "avg": 63,
+              "day": "2026-09-11",
+              "max": 74,
+              "min": 46
+            },
+            {
+              "avg": 32,
+              "day": "2026-09-12",
+              "max": 42,
+              "min": 30
+            },
+            {
+              "avg": 27,
+              "day": "2026-09-13",
+              "max": 30,
+              "min": 21
+            },
+            {
+              "avg": 32,
+              "day": "2026-09-14",
+              "max": 46,
+              "min": 21
+            },
+            {
+              "avg": 21,
+              "day": "2026-09-15",
+              "max": 21,
+              "min": 21
+            },
+            {
+              "avg": 21,
+              "day": "2026-09-16",
+              "max": 21,
+              "min": 21
+            },
+            {
+              "avg": 21,
+              "day": "2026-09-17",
+              "max": 23,
+              "min": 21
+            },
+            {
+              "avg": 23,
+              "day": "2026-09-18",
+              "max": 40,
+              "min": 21
+            }
+          ],
+          "uvi": [
+            {
+              "avg": 0,
+              "day": "2026-09-11",
+              "max": 0,
+              "min": 0
+            },
+            {
+              "avg": 2,
+              "day": "2026-09-12",
+              "max": 9,
+              "min": 0
+            },
+            {
+              "avg": 2,
+              "day": "2026-09-13",
+              "max": 11,
+              "min": 0
+            },
+            {
+              "avg": 2,
+              "day": "2026-09-14",
+              "max": 12,
+              "min": 0
+            },
+            {
+              "avg": 2,
+              "day": "2026-09-15",
+              "max": 10,
+              "min": 0
+            },
+            {
+              "avg": 3,
+              "day": "2026-09-16",
+              "max": 10,
+              "min": 0
+            }
+          ]
+        }
+      },
+      "debug": {
+        "sync": "2026-09-12T13:07:10+09:00"
+      }
+    }
+  }
+}
