@@ -138,45 +138,52 @@ This loads the processed CSV into an in-memory DuckDB database and executes anal
 
 ### Entity Relationship Diagram
 
-```text
-+-------------------------------------------------------+
-|                   RAW DATA LAYER                      |
-+-------------------------------------------------------+
-| 1. RAW WAQI PAYLOAD (JSON)                            |
-|    - Metrics: aqi, pm25, pm10, no2, co                |
-|    - Join Key: observation_timestamp_utc              |
-|                                                       |
-| 2. RAW OPENWEATHER PAYLOAD (JSON)                     |
-|    - Metrics: temp, humidity, pressure, wind_speed    |
-|    - Join Key: observation_timestamp_utc              |
-+---------------------------+---------------------------+
-                            |
-                            | ETL Transformation (transform.py)
-                            v
-+-------------------------------------------------------+
-|                 PROCESSED DATA LAYER                  |
-+-------------------------------------------------------+
-| Table: makati_air_weather_hourly.csv                  |
-| Grain: 1 row = 1 hourly observation for Makati City   |
-+-------------------------------------------------------+
-| * observation_id (PK, String Hash)                    |
-|   observation_timestamp_utc (DateTime UTC, Hourly)    |
-|   aqi, pm25, pm10, no2, co (Float)                    |
-|   temperature_celsius, humidity_percent (Float)       |
-|   pressure_hpa, wind_speed_mps (Float)                |
-|   weather_condition (String)                          |
-|   ingested_at_utc (DateTime UTC)                      |
-+-------------------------------------------------------+
+```mermaid
+erDiagram
+    RAW_WAQI_PAYLOAD {
+        string observation_timestamp_utc FK
+        float aqi
+        float pm25
+        float pm10
+        float no2
+        float co
+    }
+    RAW_OPENWEATHER_PAYLOAD {
+        string observation_timestamp_utc FK
+        float temperature_celsius
+        float humidity_percent
+        float pressure_hpa
+        float wind_speed_mps
+        string weather_condition
+    }
+    MAKATI_AIR_WEATHER_HOURLY {
+        string observation_id PK
+        string observation_timestamp_utc
+        float aqi
+        float pm25
+        float pm10
+        float no2
+        float co
+        float temperature_celsius
+        float humidity_percent
+        float pressure_hpa
+        float wind_speed_mps
+        string weather_condition
+        string ingested_at_utc
+    }
+
+    RAW_WAQI_PAYLOAD ||--|| MAKATI_AIR_WEATHER_HOURLY : "joins on timestamp"
+    RAW_OPENWEATHER_PAYLOAD ||--|| MAKATI_AIR_WEATHER_HOURLY : "joins on timestamp"
 ```
 
 ### Schema Plan & Entity Details
 
 * **Raw Entities:**
-  1. `WAQI Payload`: Atmospheric pollutants extracted from WAQI station feeds.
-  2. `OpenWeather Payload`: Meteorological measurements from OpenWeather API.
+  1. `RAW_WAQI_PAYLOAD`: Atmospheric pollutants extracted from WAQI API.
+  2. `RAW_OPENWEATHER_PAYLOAD`: Meteorological measurements from OpenWeather API.
 * **Processed Entity:**
   * **Table Name:** `makati_air_weather_hourly`
   * **Storage Location:** `data/processed/makati_air_weather_hourly.csv`
-  * **Table Grain:** `1 row = 1 hourly observation for Makati City`.
-  * **Primary Key (PK):** `observation_id` (Composite surrogate hash).
-  * **Join Relationship:** Joined on `observation_timestamp_utc`.
+  * **Table Grain:** `1 row = 1 hourly observation for Makati City` (UTC hourly floor).
+  * **Primary Key (PK):** `observation_id` (Composite surrogate hash: `makati_<timestamp>`).
+  * **Join Mechanics:** Full/outer join between raw feeds on `observation_timestamp_utc`.
