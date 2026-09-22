@@ -133,3 +133,60 @@ Ensure Python 3.8+ and Pandas are installed:
    python scripts/run_queries.py
 
 This loads the processed CSV into an in-memory DuckDB database and executes analytical SQL queries to answer core business questions.
+
+
+## Entity-Relationship Diagram (ERD) & Schema Plan
+
+### Entity Relationship Diagram
+
++-------------------------------------------------------+
+|                   RAW DATA LAYER                      |
++-------------------------------------------------------+
+|  1. Raw WAQI Payload (JSON)                           |
+|     - Station: Makati / Geo Coordinates               |
+|     - Extract: iaqi metrics (aqi, pm25, pm10, no2, co) |
+|     - Time: observation_timestamp_utc                 |
++---------------------------+---------------------------+
+|
+| (Joined on observation_timestamp_utc)
+v
++-------------------------------------------------------+
+|  2. Raw OpenWeather Payload (JSON)                    |
+|     - Location: Makati (Lat: 14.5547, Lon: 121.0244)   |
+|     - Extract: temp, humidity, pressure, wind_speed   |
+|     - Time: observation_timestamp_utc                 |
++---------------------------+---------------------------+
+|
+| ETL Transformation & Quality Pipeline
+v
++-------------------------------------------------------+
+|                 PROCESSED DATA LAYER                  |
++-------------------------------------------------------+
+|  makati_air_weather_hourly.csv                        |
+|=======================================================|
+|  * observation_id (PK, String, Hash)                  |
+|    observation_timestamp_utc (DateTime UTC, Hourly)   |
+|    aqi (Float)                                        |
+|    pm25 (Float)                                       |
+|    pm10 (Float)                                       |
+|    no2 (Float)                                        |
+|    co (Float)                                         |
+|    temperature_celsius (Float)                        |
+|    humidity_percent (Float)                           |
+|    pressure_hpa (Float)                               |
+|    wind_speed_mps (Float)                             |
+|    weather_condition (String)                         |
+|    ingested_at_utc (DateTime UTC)                     |
++-------------------------------------------------------+
+
+### Schema Plan & Entity Details
+
+* **Raw Entities:**
+  1. `WAQI Air Quality Entity`: Real-time atmospheric metrics extracted from WAQI station feeds.
+  2. `OpenWeather Environmental Entity`: Real-time meteorological observations extracted from OpenWeather API.
+* **Processed Entity:**
+  * **Table Name:** `makati_air_weather_hourly`
+  * **Storage Format:** CSV (`data/processed/makati_air_weather_hourly.csv`) / DuckDB View
+  * **Table Grain:** `1 row = 1 hourly observation for Makati City` (Timestamp truncated/floored to UTC hour).
+  * **Primary Key (PK):** `observation_id` (Composite surrogate hash: `makati_<observation_timestamp_utc>`).
+  * **Join Relationship:** Outer join between `WAQI Entity` and `OpenWeather Entity` on the primary alignment key `observation_timestamp_utc`.
